@@ -1,23 +1,34 @@
-// Depends from jQuery
+// Depends from jQuery, because of $.extend. That's senseless.
+
 // Todo: use require.js
 var Map = (function(options) {
 
     var defaultOptions = {
         width: 10,
         height: 10,
+
         wallColor: "#613D2D",
+
+        // Walkable, empty space
         emptyColor: "#D9CCB9",
+
+        // Found route's color
         routeColor: "#E95D22",
+
+        // Used to connect the network of nodes
         connectColor: "#999",
+
+        // Blocks that are marked as a corner
         cornerColor: "#BED9B9",
+
+        // Map's border
+        borderColor: '#999'
     };
 
     var my = {},
         options = $.extend(true, {}, defaultOptions, options),
         map = options.map,
-        grid = undefined,
-        graph = undefined,
-        corners = undefined;
+        grid;
 
     // 'Constants'
     var WALL = 0,
@@ -33,11 +44,16 @@ var Map = (function(options) {
 
 
     function init() {
-        grid = new Grid(options.gridSettings);
+        var gridSettings = {
+            borderColor: options.borderBolor,
+            canvas: options.canvas,
+            columns: options.width,
+            rows: options.height,
+            boxSize: options.boxSize
+        };
+        grid = new Grid(gridSettings);
         drawWalls();
-        findCorners();
-        colorBoxes(corners, options.cornerColor);
-    };
+    }
 
     //
     // Public methods
@@ -51,17 +67,26 @@ var Map = (function(options) {
             var algorithm = "dijkstra";
         }
 
-        var foundRoute = undefined;
+        // Todo: Refactor, algorithm parameter could be function's name
+        var routeInfo;
         if (algorithm === "dijkstra") {
-            foundRoute = dijkstraRoute(x1, y1, x2, y2);
+            routeInfo = dijkstraRoute(x1, y1, x2, y2);
         }
         else if (algorithm === "corner") {
-            foundRoute = cornerRoute(x1, y1, x2, y2);
+            routeInfo = cornerRoute(x1, y1, x2, y2);
+        }
+
+        var distance = routeInfo[0],
+            foundRoute = routeInfo[1];
+
+        if (foundRoute.length === 0 || distance === Infinity) {
+            return Infinity;
         }
 
         // Connect first step
         grid.connectBoxes(x1, y1, foundRoute[0][0], foundRoute[0][1],
                           options.routeColor);
+        grid.setBoxColor(x1, y1, options.routeColor);
 
         for (var i = 0; i < foundRoute.length - 1; ++i) {
             var x1 = foundRoute[i][0],
@@ -70,55 +95,78 @@ var Map = (function(options) {
                 y2 = foundRoute[i + 1][1];
             grid.connectBoxes(x1, y1, x2, y2, options.routeColor);
         }
-
+        return distance;
     };
 
     //
     // Private methods
     //
 
+    // Returns shortest route between points using box graph
     function dijkstraRoute(x1, y1, x2, y2) {
-        createBoxGraph();
+        var graph = createBoxGraph();
         dijkstra(graph, keyFromCoordinates(x1, y1));
 
         var foundRoute = [];
 
-        var node = graph.nodes[keyFromCoordinates(x2, y2)];
+        var startNode = getNode(graph, x1, y1),
+            endNode = getNode(graph, x2, y2),
+            node = endNode,
+            distance = node.distance;
+        if (startNode === null || endNode === null || distance === Infinity) {
+            // Start point is a wall
+            return [Infinity, []];
+        }
+
         while (node.predecessor.node !== null) {
             foundRoute.push(node.position);
             node = node.predecessor.node;
         }
 
         if (!(node.position[0] === x1 && node.position[1] === y1)) {
-            return [];
-        }
-
-        foundRoute.reverse();
-        colorBoxes(foundRoute, routeColor);
-        return foundRoute;
-    };
-
-    function cornerRoute(x1, y1, x2, y2) {
-        createCornerGraph([[x1, y1], [x2, y2]]);
-
-        dijkstra(graph, keyFromCoordinates(x1, y1));
-
-        var foundRoute = [];
-
-        var node = graph.nodes[keyFromCoordinates(x2, y2)];
-        while (node.predecessor.node !== null) {
-            foundRoute.push(node.position);
-            node = node.predecessor.node;
-        }
-
-        if (!(node.position[0] === x1 && node.position[1] === y1)) {
-            return [];
+            // No route found
+            return [Infinity, []];
         }
 
         foundRoute.reverse();
         colorBoxes(foundRoute, options.routeColor);
-        return foundRoute;
-    };
+
+        return [distance, foundRoute];
+    }
+
+    // Returns shortest route between points using corner graph
+    function cornerRoute(x1, y1, x2, y2) {
+        var corners = findCorners();
+        colorBoxes(corners, options.cornerColor);
+
+        var graph = createCornerGraph(corners, [[x1, y1], [x2, y2]]);
+        dijkstra(graph, keyFromCoordinates(x1, y1));
+
+        var foundRoute = [];
+
+        var startNode = getNode(graph, x1, y1),
+            endNode = getNode(graph, x2, y2),
+            node = endNode,
+            distance = node.distance;
+        if (startNode === null || endNode === null || distance === Infinity) {
+            // Start point is a wall
+            return [Infinity, []];
+        }
+
+        while (node.predecessor.node !== null) {
+            foundRoute.push(node.position);
+            node = node.predecessor.node;
+        }
+
+        if (!(node.position[0] === x1 && node.position[1] === y1)) {
+            // No route found
+            return [Infinity, []];
+        }
+
+        foundRoute.reverse();
+        colorBoxes(foundRoute, options.routeColor);
+        return [distance, foundRoute];
+    }
 
     function drawWalls() {
         for (var y = 0; y < map.length; ++y) {
@@ -133,7 +181,7 @@ var Map = (function(options) {
             }
         }
         grid.draw();
-    };
+    }
 
     function colorBoxes(boxList, color) {
         for (var i = 0; i < boxList.length; ++i) {
@@ -144,8 +192,9 @@ var Map = (function(options) {
         grid.draw();
     }
 
+    // Creates a graph of all walkable boxes that are connected to each other
     function createBoxGraph() {
-        graph = new Graph();
+        var graph = new Graph();
 
         for (var y = 0; y < map.length; ++y) {
             for (var x = 0; x < map[y].length; ++x) {
@@ -193,10 +242,13 @@ var Map = (function(options) {
             }
         }
         grid.draw();
-    };
+        return graph;
+    }
 
+    // Finds the corners of walls.
+    // This reduces the amount of work that dijkstra has to do
     function findCorners() {
-        corners = [];
+        var corners = [];
         for (var y = 0; y < map.length; ++y) {
             for (var x = 0; x < map[y].length; ++x) {
                 if (map[y][x] !== WALL) {
@@ -211,12 +263,12 @@ var Map = (function(options) {
             }
         }
         return corners;
-    };
+    }
 
     // Creates a graph where all the nodes that can see each other, are
     // connected.
-    function createCornerGraph(additionalCoordinates) {
-        graph = new Graph();
+    function createCornerGraph(corners, additionalCoordinates) {
+        var graph = new Graph();
 
         var coordinates = [];
         for (var i = 0; i < additionalCoordinates.length; ++i) {
@@ -251,14 +303,15 @@ var Map = (function(options) {
             }
         }
         grid.draw();
-    };
+        return graph;
+    }
 
     // Counts the smallest distance between two points in a empty grid.
     // Meaning that there are no walls between the points at any way.
     // Valid modes: COORD_MODE_STRAIGHT, COORD_MODE_DIAGONAL
     function distanceBetween(x1, y1, x2, y2, coordMode) {
 
-        var distance = undefined;
+        var distance;
 
         if (coordMode === COORD_MODE_STRAIGHT) {
             distance = Math.abs(x2 - x1) + Math.abs(y2 - y1);
@@ -274,7 +327,7 @@ var Map = (function(options) {
             }
         }
         return distance;
-    };
+    }
 
     // Checks is the route between points is clear in a way that it does
     // not have any walls => Drawing rectangle between dots, should not
@@ -293,15 +346,22 @@ var Map = (function(options) {
             }
         }
         return !containsWall(coordinates);
-    };
+    }
 
-    function getNode(x, y) {
-        return graph.nodes[keyFromCoordinates(x, y)];
-    };
+    // Returns the actual node in a coordinate
+    function getNode(graph, x, y) {
+        var nodeKey = keyFromCoordinates(x, y);
+        if (graph.nodes.hasOwnProperty(nodeKey)) {
+            return graph.nodes[nodeKey];
+        }
+        return null;
+    }
 
+    // Returns a key from coordinates that can be used in the nodes object.
+    // This is because you can't have an array as a key in object.
     function keyFromCoordinates(x, y) {
         return x + ',' + y;
-    };
+    }
 
     // Returns false if no coordinate in boxList is a wall.
     function containsWall(boxList) {
@@ -314,7 +374,7 @@ var Map = (function(options) {
             }
         }
         return false;
-    };
+    }
 
     // Return near boxes which are in the map
     function nearBoxes(x, y, mode, filterMode) {
@@ -366,7 +426,7 @@ var Map = (function(options) {
         }
 
         return boxes;
-    };
+    }
 
     function nearCoordinates(x, y, mode) {
         // At least this is readable in some way
@@ -389,7 +449,7 @@ var Map = (function(options) {
                     [x - 1, y + 1],             [x + 1, y + 1]
                    ];
         }
-    };
+    }
 
     init();
     return my;

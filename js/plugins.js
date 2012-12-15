@@ -22,7 +22,7 @@
 }());
 
 // Place any jQuery/helper plugins in here.
-
+// Todo: Don't hack prototype!
 (function() {
     if (!Array.prototype.filter) {
         Array.prototype.filter = function(fun /*, thisp*/) {

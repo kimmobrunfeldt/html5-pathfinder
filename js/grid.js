@@ -1,15 +1,36 @@
-window.requestAnimFrame = (function(){
-  return  window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame    ||
-    window.oRequestAnimationFrame      ||
-    window.msRequestAnimationFrame     ||
-    function( callback ){
-    window.setTimeout(callback, 1000 / 40);
-  };
-})();
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
 
-// Depends from jQuery
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+
+
+// Depends from jQuery, because of $.extend. That's senseless.
+
 // Todo: use require.js
 var Grid = (function(options) {
     /*
@@ -41,13 +62,13 @@ var Grid = (function(options) {
         borderColor: 'black',
 
         columns: 10,
-        rows: 10,
+        rows: 10
     };
 
     var my = {},
         options = $.extend(true, {}, defaultOptions, options),
         canvas = options.canvas,
-        ctx = canvas.getContext("2d");
+        ctx = canvas.getContext("2d"),
         width = canvas.width,
         height = canvas.height,
 
@@ -58,7 +79,12 @@ var Grid = (function(options) {
         additionalLines = [];
 
     function init() {
-    };
+        var size = my.getGridSize(),
+            widthPixels = size[0],
+            heightPixels = size[1];
+        canvas.width = widthPixels;
+        canvas.height = heightPixels;
+    }
 
     //
     // Public methods
@@ -66,14 +92,15 @@ var Grid = (function(options) {
 
     // If you want canvas to be instantly drawn, set it to true
     my.draw = function() {
-        requestAnimFrame(draw);
+        window.requestAnimationFrame(draw);
     };
 
+    // Returns grid's size in pixels
     my.getGridSize = function() {
-        var width = options.columns * options.boxSize + (options.columns + 1)
-                     * options.borderSize,
-            height = options.rows * options.boxSize + (options.rows + 1)
-                     * options.borderSize;
+        var width = options.columns * options.boxSize + (options.columns + 1) *
+                    options.borderSize,
+            height = options.rows * options.boxSize + (options.rows + 1) *
+                     options.borderSize;
         return [width, height];
     };
 
@@ -143,7 +170,7 @@ var Grid = (function(options) {
         drawBorders();
         colorBoxes();
         drawAdditionalLines();
-    };
+    }
 
     function drawBorders() {
         var size = my.getGridSize(),
@@ -168,7 +195,7 @@ var Grid = (function(options) {
 
         ctx.strokeStyle = options.borderColor;
         ctx.stroke();
-    };
+    }
 
     function drawLine(line) {
         var x1 = line[0],
@@ -180,7 +207,7 @@ var Grid = (function(options) {
         ctx.lineTo(x2, y2);
         ctx.strokeStyle = color;
         ctx.stroke();
-    };
+    }
 
     function colorBoxes() {
         for (var i = 0; i < boxColors.length; ++i) {
@@ -195,14 +222,14 @@ var Grid = (function(options) {
             ctx.fillStyle = color;
             ctx.fillRect(x1, y1, options.boxSize, options.boxSize);
         }
-    };
+    }
 
     function drawAdditionalLines() {
         for (var i = 0; i < additionalLines.length; ++i) {
             ctx.beginPath();
             drawLine(additionalLines[i]);
         }
-    };
+    }
 
     function clearCanvas() {
         // http://stackoverflow.com/questions/2142535/how-to-clear-the-canvas-for-redrawing
@@ -210,7 +237,7 @@ var Grid = (function(options) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.restore();
-    };
+    }
 
     init();
     return my;

@@ -90,42 +90,182 @@ textarea {
 }
 
 /* ==========================================================================
-   Author's custom styles
+   Author's snippets
    ========================================================================== */
 
 
-.panel {
+.side-shadow {
+    box-shadow: 10px 0 25px #888,
+                -10px 0 25px #888;
+}
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
     visibility: hidden;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 99;
-    width: 200px;
-    height: 230px;
-    background: rgba(0,0,0,0.05);
-    border: 1px solid #999;
-    text-align: center;
 }
 
-.panel h2 {
-    padding: 20px 0 10px 0;
-    margin: 0;
-    color: #333;
-}
+.clearfix {display: inline-block;}  /* for IE/Mac */
 
-.panel input {
-    margin-top: 30px;
-}
 
-.panel label {
-    padding-left: 5px;
-}
-
-.slider {
-    width: 100px;
+.center {
     margin-left: auto;
     margin-right: auto;
 }
+
+.no-select {
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+
+  /* No support for these yet, use at own risk */
+  -o-user-select: none;
+  user-select: none;
+}
+
+.red {
+    color: #C95959;
+    font-weight: 700;
+}
+
+.underline {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+body, html {
+    background: #ccc;
+    font-family: "Helvetica Neue", "Lato", Helvetica, Arial, sans-serif;
+    height: 100%;
+}
+
+div, h1, h2 {
+    margin: 0;
+    padding: 0;
+}
+
+ul, li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.wrapper {
+    min-height: 100%;
+    width: 950px;
+    background: #eee;
+}
+
+.wrapper h1, h2 {
+    text-align: center;
+    padding: 30px 0 20px 0;
+    color: #353535;
+}
+
+.wrapper h1 {
+    font-size: 5em;
+    padding-bottom: 50px;
+}
+
+.wrapper p {
+    font-size: 1.1em;
+    font-weight: 200;
+}
+
+.wrapper .top {
+    background: url("../img/egg_shell_green.png");
+    border-bottom: 3px solid #999;
+}
+
+.wrapper .textcontainer {
+    position: relative;
+    padding: 30px 50px 50px 50px;
+}
+
+.wrapper .reload a:hover {
+    background: url("../img/reload_light.png");
+    cursor: pointer;
+}
+
+.wrapper .reload a {
+    background: url("../img/reload_dark.png");
+    height: 40px;
+    width: 40px;
+    display: block;
+}
+
+.wrapper .reload {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    user-select: none;
+}
+
+.wrapper .maps .map {
+    float: left;
+    width: 420px;
+}
+
+.wrapper .map-guide {
+    padding: 20px 0 10px 30px;
+}
+
+.wrapper .guide-left {
+    float: left;
+    width: 300px;
+}
+
+.wrapper .guide-right {
+    float: left;
+    width: 450px;
+}
+
+
+.map-block {
+    margin-right: 20px;
+    width: 23px;
+    height: 23px;
+    float: left;
+    border: 1px solid black;
+}
+
+.map-line {
+    margin-top: 12px;
+    width: 23px;
+    height: 3px;
+    float: left;
+    margin-right: 20px;
+}
+
+.wall-bg {
+    background: #613D2D;
+}
+
+.empty-bg {
+    background: #D9CCB9;
+}
+
+.corner-bg {
+    background: #BED9B9;
+}
+
+.route-bg {
+    background: #E95D22;
+}
+
+.route-line {
+    background: #E95D22;
+}
+
+.node-line {
+    background: #999;
+}
+
 
 
 /* ==========================================================================

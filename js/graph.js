@@ -35,7 +35,7 @@ var Node = (function(object, position) {
 var Graph = (function() {
 
   var my = {
-    nodes: {},
+    nodes: {}
   };
 
   my.addNode = function(object, position) {
@@ -50,7 +50,7 @@ var Graph = (function() {
     edge.distance = weight;
     my.nodes[object1].addEdge(edge);
 
-    var edge = new Edge();
+    edge = new Edge();
     edge.node = my.nodes[object1];
     edge.distance = weight;
     my.nodes[object2].addEdge(edge);
@@ -60,13 +60,7 @@ var Graph = (function() {
 });
 
 
-/*
-   Path-finding algorithm Dijkstra
-
-   - worst-case running time is O((|E| + |V|) · log |V| ) thus better than
-     Bellman-Ford for sparse graphs (with less edges), but cannot handle
-     negative edge weights
- */
+// For graph g, finds the shortest paths to all points from source point
 function dijkstra(g, source) {
 
   for (var i = 0; i < g.nodes.length; ++i) {

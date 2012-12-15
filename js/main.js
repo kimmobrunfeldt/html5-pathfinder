@@ -7,7 +7,7 @@
         }
         var index = Math.floor(Math.random() * (list.length));
         return list[index];
-    };
+    }
 
     function generateMap(width, height) {
         var blocks = [];
@@ -19,35 +19,72 @@
             blocks.push(row);
         }
         return blocks;
-    };
+    }
 
+    // Not really elegant, but simplest and works well in this purpose.
+    function deepCopy(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
 
-    var grid = undefined;
-    $(window).load(function() {
-        var canvas = $('#canvas')[0],
+    function drawAndSolveMaps() {
+        var leftCanvas = $('#left-canvas')[0],
+            rightCanvas = $('#right-canvas')[0],
             width = 15,
             height = 15,
             boxSize = 25;
 
-        var gridSettings = {
-            canvas: canvas,
-            columns: width,
-            rows: height,
-            boxSize: boxSize,
-            borderColor: "#999"
-        };
-
-        // console.log('generated map');
         var blocks = generateMap(width, height);
-        console.log(JSON.stringify(blocks));
 
-        var map = new Map({
-            gridSettings: gridSettings,
-            map: blocks,
+        // Set corners walkable
+        blocks[0][0] = 1;
+        blocks[height - 1][width - 1] = 1;
+
+        var leftMap = new Map({
+            canvas: leftCanvas,
+            map: deepCopy(blocks),
             width: width,
-            height: height
+            height: height,
+            boxSize: boxSize
         });
-        setTimeout(function() { map.route(0,0,width-1, height-1, "corner"); }, 50);
+        var leftDistance = leftMap.route(0,0,width-1, height-1, "dijkstra");
+        if (leftDistance === Infinity) {
+            $('#left-distance').html('No path found.');
+        } else {
+            $('#left-distance').html('Distance: <span class="underline">' +
+                                     leftDistance.toFixed(1) +
+                                     '</span>');
+        }
+
+        var rightMap = new Map({
+            canvas: rightCanvas,
+            map: deepCopy(blocks),
+            width: width,
+            height: height,
+            boxSize: boxSize
+        });
+        var rightDistance = rightMap.route(0,0,width-1, height-1, "corner");
+
+        if (rightDistance === Infinity) {
+             $('#right-distance').html('No path found.');
+        } else {
+            $('#right-distance').html('Distance: <span class="underline">' +
+                                      rightDistance.toFixed(1) +
+                                      '</span>');
+
+            if (rightDistance > leftDistance) {
+                $('#right-distance').append(' <span class="red">(!) not the shortest</span>');
+            }
+        }
+    }
+
+    $(window).load(function() {
+        var reloadElement = $('#reload');
+
+        $('#reload').click(function() {
+            drawAndSolveMaps();
+        });
+
+        drawAndSolveMaps();
     });
 
 })($, window);
