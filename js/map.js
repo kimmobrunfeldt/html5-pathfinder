@@ -6,6 +6,7 @@ var Map = (function(options) {
     var defaultOptions = {
         width: 10,
         height: 10,
+        connectPathBoxes: false,
 
         wallColor: "#613D2D",
 
@@ -86,16 +87,18 @@ var Map = (function(options) {
             return Infinity;
         }
 
-        // Connect first step
-        grid.connectBoxes(x1, y1, foundRoute[0][0], foundRoute[0][1],
-                          options.routeColor);
+        if (options.connectPathBoxes) {
+            // Connect first step
+            grid.connectBoxes(x1, y1, foundRoute[0][0], foundRoute[0][1],
+                              options.routeColor);
 
-        for (var i = 0; i < foundRoute.length - 1; ++i) {
-            var x1 = foundRoute[i][0],
-                y1 = foundRoute[i][1],
-                x2 = foundRoute[i + 1][0],
-                y2 = foundRoute[i + 1][1];
-            grid.connectBoxes(x1, y1, x2, y2, options.routeColor);
+            for (var i = 0; i < foundRoute.length - 1; ++i) {
+                var x1 = foundRoute[i][0],
+                    y1 = foundRoute[i][1],
+                    x2 = foundRoute[i + 1][0],
+                    y2 = foundRoute[i + 1][1];
+                grid.connectBoxes(x1, y1, x2, y2, options.routeColor);
+            }
         }
         return distance;
     };
