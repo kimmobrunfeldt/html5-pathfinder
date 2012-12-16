@@ -15,6 +15,9 @@ var Map = (function(options) {
         // Found route's color
         routeColor: "#E95D22",
 
+        // Color of the actual corner that is on route
+        cornerRouteColor: "#639E59",
+
         // Used to connect the network of nodes
         connectColor: "#999",
 
@@ -86,7 +89,6 @@ var Map = (function(options) {
         // Connect first step
         grid.connectBoxes(x1, y1, foundRoute[0][0], foundRoute[0][1],
                           options.routeColor);
-        grid.setBoxColor(x1, y1, options.routeColor);
 
         for (var i = 0; i < foundRoute.length - 1; ++i) {
             var x1 = foundRoute[i][0],
@@ -129,12 +131,15 @@ var Map = (function(options) {
         }
 
         foundRoute.reverse();
+        grid.setBoxColor(x1, y1, options.routeColor);
         colorBoxes(foundRoute, options.routeColor);
 
         return [distance, foundRoute];
     }
 
     // Returns shortest route between points using corner graph
+    // Finds the shortest route using corner graph and fills the
+    // founded nodes with routeBetween() method
     function cornerRoute(x1, y1, x2, y2) {
         var corners = findCorners();
         colorBoxes(corners, options.cornerColor);
@@ -147,7 +152,8 @@ var Map = (function(options) {
         var startNode = getNode(graph, x1, y1),
             endNode = getNode(graph, x2, y2),
             node = endNode,
-            distance = node.distance;
+            distance = node.distance,
+            lastNode = null;
         if (startNode === null || endNode === null || distance === Infinity) {
             // Start point is a wall
             return [Infinity, []];
@@ -164,8 +170,31 @@ var Map = (function(options) {
         }
 
         foundRoute.reverse();
-        colorBoxes(foundRoute, options.routeColor);
-        return [distance, foundRoute];
+
+
+        // Add also the middle blocks to the path
+        var lastX = x1,
+            lastY = y1,
+            newFoundRoute = [[x1, y1]];
+
+        for (var i = 0; i < foundRoute.length; ++i) {
+            var x = foundRoute[i][0],
+                y = foundRoute[i][1],
+                middleBoxes = routeBetween(lastX, lastY, x, y, COORD_MODE_DIAGONAL);
+
+            for (var k = 0; k < middleBoxes.length; ++k) {
+                newFoundRoute.push([middleBoxes[k][0], middleBoxes[k][1]]);
+            }
+
+            newFoundRoute.push([x, y]);
+            lastX = x;
+            lastY = y;
+        }
+
+        foundRoute.push([x1, y1]);
+        colorBoxes(newFoundRoute, options.routeColor);
+        colorBoxes(foundRoute, options.cornerRouteColor);
+        return [distance, newFoundRoute];
     }
 
     function drawWalls() {
@@ -247,16 +276,30 @@ var Map = (function(options) {
 
     // Finds the corners of walls.
     // This reduces the amount of work that dijkstra has to do
+    // for each block in the map:
+    //   if a block has neighbor walls in diagonal directions:
+    //     for each neighbor in diagonal walls:
+    //       if there are no straight walls in the direction where the
+    //       diagonal neighbor wall is, mark the block as a corner
     function findCorners() {
         var corners = [];
         for (var y = 0; y < map.length; ++y) {
             for (var x = 0; x < map[y].length; ++x) {
                 if (map[y][x] !== WALL) {
-                    var straightBoxes = nearBoxes(x, y, COORD_MODE_STRAIGHT);
-                    if (!containsWall(straightBoxes)) {
-                        var diagonalBoxes = nearBoxes(x, y, COORD_MODE_DIAGONAL);
-                        if (containsWall(diagonalBoxes)) {
-                            corners.push([x, y]);
+                    var diagonalBoxes = nearBoxes(x, y, COORD_MODE_DIAGONAL);
+                    for (var i = 0; i < diagonalBoxes.length; ++i) {
+                        var dBox = diagonalBoxes[i],
+                            dBoxX = dBox[0],
+                            dBoxY = dBox[1],
+                            xDiff = x - dBoxX,
+                            yDiff = y - dBoxY;
+
+                        if (map[dBoxY][dBoxX] === WALL) {
+                            var straightBoxes = [[dBoxX + xDiff, dBoxY],
+                                                 [dBoxX, dBoxY + yDiff]];
+                            if (!containsWall(straightBoxes)) {
+                                corners.push([x, y]);
+                            }
                         }
                     }
                 }
@@ -327,6 +370,60 @@ var Map = (function(options) {
             }
         }
         return distance;
+    }
+
+    // Returns the shortest route between two points in a empty grid.
+    // Meaning that there are no walls between the points at any way.
+    // Valid modes: COORD_MODE_STRAIGHT, COORD_MODE_DIAGONAL
+    // Note: returns only the middle blocks between points
+    // XXX: This is impossible to read.
+    function routeBetween(x1, y1, x2, y2, coordMode) {
+
+        var route = [],
+            xDiff = x1 - x2;
+            xDirection = -xDiff / Math.abs(xDiff),
+            yDiff = y1 - y2,
+            yDirection = -yDiff / Math.abs(yDiff);
+
+        if (xDiff === 0 && yDiff === 0) {
+            return route;
+        }
+
+        if (coordMode === COORD_MODE_STRAIGHT) {
+            for (var i = 1; i < Math.abs(xDiff) + 1; ++i) {
+                route.push([x1 + i * xDirection, y1]);
+            }
+            console.log('route' + JSON.stringify(route));
+            var lastX = (route.length !== 0) ? route[route.length - 1][0] : x1;
+            for (var i = 1; i < Math.abs(yDiff); ++i) {
+                route.push([lastX, y1 + i * yDirection]);
+            }
+        }
+        else if (coordMode === COORD_MODE_DIAGONAL) {
+            xDiff = Math.abs(x2 - x1);
+            yDiff = Math.abs(y2 - y1);
+
+            if (yDiff < xDiff) {
+                for (var i = 1; i < Math.abs(yDiff); ++i) {
+                    route.push([x1 + i * xDirection, y1 + i * yDirection]);
+                }
+                var lastX = (route.length !== 0 ) ? route[route.length - 1][0] : x1,
+                    newXDiff = x2 - lastX;
+                for (var i = 1; i < Math.abs(newXDiff); ++i) {
+                    route.push([lastX + i * xDirection, y2]);
+                }
+            } else {
+                for (var i = 1; i < Math.abs(xDiff); ++i) {
+                    route.push([x1 + i * xDirection, y1 + i * yDirection]);
+                }
+                var lastY = (route.length !== 0 ) ? route[route.length - 1][1] : y1,
+                    newYDiff = y2 - lastY;
+                for (var i = 1; i < Math.abs(newYDiff); ++i) {
+                    route.push([x2, lastY + i * yDirection]);
+                }
+            }
+        }
+        return route;
     }
 
     // Checks is the route between points is clear in a way that it does
@@ -429,20 +526,20 @@ var Map = (function(options) {
     }
 
     function nearCoordinates(x, y, mode) {
-        // At least this is readable in some way
-        if (mode == COORD_MODE_ALL) {
+        // At least this is readable
+        if (mode === COORD_MODE_ALL) {
             return [
                     [x - 1, y - 1], [x, y - 1], [x + 1 , y - 1],
                     [x - 1, y],                 [x + 1, y],
                     [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]
                    ];
-        } else if (mode == COORD_MODE_STRAIGHT) {
+        } else if (mode === COORD_MODE_STRAIGHT) {
             return [
                                 [x, y - 1],
                     [x - 1, y],             [x + 1, y],
                                 [x, y + 1]
                    ];
-        } else if (mode == COORD_MODE_DIAGONAL) {
+        } else if (mode === COORD_MODE_DIAGONAL) {
             return [
                     [x - 1, y - 1],             [x + 1 , y - 1],
 
