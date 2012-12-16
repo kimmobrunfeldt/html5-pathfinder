@@ -9,15 +9,46 @@
         return list[index];
     }
 
-    function generateMap(width, height) {
+    // Random int between start and end.
+    function randomInt(start, end) {
+        return Math.floor(Math.random() * (end - start + 1)) + start;
+    }
+
+    // Generates a block in random place in 0 - width and 0 - height
+    function randomWallObject(width, height) {
+        var objWidth = randomInt(2, 4),
+            objHeight = randomInt(2, 4),
+            startX = randomInt(0, width - objWidth - 1),
+            startY = randomInt(0, height - objHeight - 1);
+
+        var coords = [];
+
+        for (var y = startY; y < startY + objHeight; ++y) {
+            for (var x = startX; x < startX + objWidth; ++x) {
+                coords.push([x, y]);
+            }
+        }
+        return coords;
+    }
+
+    function generateMap(width, height, wallObjectCount) {
         var blocks = [];
         for (var y = 0; y < height; ++y) {
             var row = [];
             for (var x = 0; x < width; ++x) {
-                row.push(randomChoice([1, 1, 1, 1, 1, 1, 1,1,0]));
+                row.push(1);  // Empty space
             }
             blocks.push(row);
         }
+
+        // Create rectangle walls
+        for (var i = 0; i < wallObjectCount; ++i) {
+            var coords = randomWallObject(width, height);
+            for (var k = 0; k < coords.length; ++k) {
+                blocks[coords[k][1]][coords[k][0]] = 0;
+            }
+        }
+
         return blocks;
     }
 
@@ -33,7 +64,7 @@
             height = 15,
             boxSize = 25;
 
-        var blocks = generateMap(width, height);
+        var blocks = generateMap(width, height, 8);
 
         // Set corners walkable
         blocks[0][0] = 1;
