@@ -102,7 +102,7 @@
                                       rightDistance.toFixed(1) +
                                       '</span>');
 
-            if (rightDistance > leftDistance) {
+            if (rightDistance.toFixed(2) > leftDistance.toFixed(2)) {
                 $('#right-distance').append(' <span class="red">(!) not the shortest</span>');
             }
         }
