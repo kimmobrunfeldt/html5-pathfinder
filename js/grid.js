@@ -82,7 +82,7 @@ var Grid = (function(options) {
         var size = my.getGridSize(),
             widthPixels = size[0],
             heightPixels = size[1];
-        canvas.width = widthPixels;
+        canvas.width = widthPixels + 1;  // Fixed safari's drawing with +1
         canvas.height = heightPixels;
     }
 
@@ -112,11 +112,41 @@ var Grid = (function(options) {
             var render = true;
         }
 
-        boxColors.push([[column, row], color]);
+        // Replace existing color
+        // TODO: This could be done faster with object
+        var found = false;
+        for (var i = 0; i < boxColors.length; ++i) {
+            var boxColumn = boxColors[i][0][0],
+                boxRow = boxColors[i][0][1];
+            if (column === boxColumn && row === boxRow) {
+                boxColors[i] = [[column, row], color];
+                found = true;
+            }
+        }
+        if (!found) {
+            boxColors.push([[column, row], color]);
+        }
 
         if (render) {
             my.draw();
         }
+    };
+
+    // Convenience method to set color of multiple boxes.
+    my.setBoxesColor = function(boxList, color) {
+        for (var i = 0; i < boxList.length; ++i) {
+            my.setBoxColor(boxList[i][0], boxList[i][1], color, false);
+        }
+        my.draw();
+    };
+
+    my.setAllColor = function(color) {
+        for (var row = 0; row < options.rows; ++row) {
+            for (var column = 0; column < options.columns; ++column) {
+                my.setBoxColor(column, row, color, false);
+            }
+        }
+        my.draw();
     };
 
     my.clearBoxColors = function(render) {
@@ -166,6 +196,7 @@ var Grid = (function(options) {
 
     // Draws everything again.
     function draw() {
+        console.log('draw');
         clearCanvas();
         drawBorders();
         colorBoxes();
@@ -183,14 +214,14 @@ var Grid = (function(options) {
         for (var row = 0; row < options.rows + 1; ++row) {
             var yPosition = row * (options.boxSize + options.borderSize );
             ctx.moveTo(0, yPosition + options.borderSize / 2);
-            ctx.lineTo(gridHeight, yPosition + options.borderSize / 2);
+            ctx.lineTo(gridWidth, yPosition + options.borderSize / 2);
         }
 
         // There are n + 1 borders in n boxes
         for (var column = 0; column < options.columns + 1; ++column) {
             var xPosition = column * (options.boxSize + options.borderSize);
             ctx.moveTo(xPosition + options.borderSize / 2, 0);
-            ctx.lineTo(xPosition + options.borderSize / 2, gridWidth);
+            ctx.lineTo(xPosition + options.borderSize / 2, gridHeight);
         }
 
         ctx.strokeStyle = options.borderColor;

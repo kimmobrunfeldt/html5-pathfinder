@@ -134,6 +134,11 @@ textarea {
     text-decoration: underline;
 }
 
+.italic {
+    font-style: italic;
+}
+
+
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
@@ -163,8 +168,13 @@ ul, li {
 
 .wrapper h1, h2 {
     text-align: center;
-    padding: 30px 0 20px 0;
+    padding: 30px 0 10px 0;
     color: #353535;
+}
+
+.wrapper h3 {
+    padding-top: 10px;
+    color: #454545;
 }
 
 .wrapper h1 {
@@ -200,19 +210,15 @@ ul, li {
 }
 
 .wrapper .reload {
-    position: fixed;
-    top: 10px;
-    right: 10px;
+    float: left;
+    padding-top: 240px;
+    padding-right: 10px;
+
 }
 
 .wrapper .maps .map {
     float: left;
     width: 400px;
-}
-
-/* Didn't get it work it first-child */
-.wrapper .maps .left-map {
-    margin-right: 20px;
 }
 
 .wrapper .map-guide {
@@ -273,6 +279,34 @@ ul, li {
     background: #999;
 }
 
+.wrapper .single-column {
+    padding: 20px 80px 0px 80px;
+}
+
+.wrapper .canvas-row {
+    width: 100%;
+    background: #ddd;
+    padding: 20px 0 20px 0;
+}
+
+.wrapper .canvas-row canvas {
+    float: left;
+    padding-left: 30px;
+}
+
+
+ul.algorithm {
+    padding-left: 20px;
+}
+
+ul.algorithm p:before {
+    content: "– ";
+}
+
+ul.algorithm p {
+    margin: 0;
+    padding: 0;
+}
 
 
 /* ==========================================================================

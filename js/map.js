@@ -302,6 +302,7 @@ var Map = (function(options) {
                                                  [dBoxX, dBoxY + yDiff]];
                             if (!containsWall(straightBoxes)) {
                                 corners.push([x, y]);
+                                break;  // One is enough
                             }
                         }
                     }

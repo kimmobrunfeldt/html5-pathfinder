@@ -116,6 +116,9 @@
         });
 
         drawAndSolveMaps();
+
+        var explanations = new Explanations();
+        explanations.start();
     });
 
 })($, window);
