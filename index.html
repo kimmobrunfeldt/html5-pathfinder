@@ -39,8 +39,8 @@
                             <li><div class="map-block corner-bg"></div> <p class="map-description">Wall corner</p></li>
                         </ul>
                         <ul class="guide-right">
-                            <li><div class="map-block route-bg"></div> <p class="map-description">Found path</p></li>
-                            <li><div class="map-line route-line"></div> <p class="map-description">Connects path blocks in preprocessed map</p></li>
+                            <li><div class="map-block route-bg"></div> <p class="map-description">Found path. In preprocessed, just a fill between corners</p></li>
+                            <li><div class="map-block corner-route-bg"></div> <p class="map-description">Wall corner, which is in the path</p></li>
                             <li><div class="map-line node-line"></div> <p class="map-description">Connects nodes in the graph</p></li>
                         </ul>
                 </div>
@@ -51,12 +51,15 @@
                         <canvas width="400" height="400" id="left-canvas"></canvas>
                         <p id="left-distance">Distance: </p>
                         <p>Shortest path is calculated normally with Dijkstra's algorithm. As you can see, the graph of connected nodes is quite large even in a small map.</p>
+                        <p>Dijkstra's algorithm is not good in maps that contain large empty fields.</p>
                     </div>
                     <div class="map">
                         <h2 class="center">Preprocessed Dijkstra</h2>
                         <canvas width="400" height="400" id="right-canvas"></canvas>
                         <p id="right-distance">Distance: </p>
-                        <p>Map is preprocessed to reduce the amount of work to find a path. The corners are found with my "own" algorithm. The algorithm doesn't guarantee the shortest path.</p>
+                        <p>Map is preprocessed to reduce the amount of work to find a path. The algorithm doesn't guarantee the shortest path.</p>
+                        <p>The corners are found with my "own" algorithm. After the corners are found, path can be calculated using only the corner nodes. Corner nodes are connected if there is clear space between them. There musnt't be any walls in the rectangle that can be drawn between the corner nodes. Start and end points are added to corner graph also.</p>
+                        <p>When the actual path is drawn, the orange path blocks are filled between the corners. They are not really in the graph.</p>
                     </div>
                 </div>
 

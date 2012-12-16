@@ -226,7 +226,7 @@ ul, li {
 
 .wrapper .guide-right {
     float: left;
-    width: 450px;
+    width: 480px;
 }
 
 .map-block {
@@ -259,6 +259,10 @@ ul, li {
 
 .route-bg {
     background: #E95D22;
+}
+
+.corner-route-bg {
+    background: #639E59;
 }
 
 .route-line {
