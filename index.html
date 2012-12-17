@@ -43,18 +43,24 @@
                 <div class="maps clearfix">
                     <div class="map left-map">
                         <h2 class="center">Dijkstra</h2>
+
                         <canvas width="400" height="400" id="left-canvas"></canvas>
                         <p id="left-distance">Distance: </p>
+
                         <p>Shortest path is calculated normally with Dijkstra's algorithm. As you can see, the graph of connected nodes is quite large even in a small map.</p>
                         <p>Dijkstra's algorithm is not good in maps that contain large empty fields.</p>
                     </div>
+
                     <div class="reload no-select">
                         <a id="reload"></a>
                     </div>
+
                     <div class="map">
                         <h2 class="center">Preprocessed Dijkstra</h2>
+
                         <canvas width="400" height="400" id="right-canvas"></canvas>
                         <p id="right-distance">Distance: </p>
+
                         <p>Map is preprocessed to reduce the amount of work to find a path. The algorithm doesn't guarantee the shortest path but it would be a good path finder in a game for example.</p>
                         <p>Preprocessing helps a lot in maps that contain large empty fields.</p>
                     </div>
@@ -62,50 +68,65 @@
 
                 <div class="single-column">
                     <h2>How the preprocessing works</h2>
+
                     <h3>1. Search the corners</h3>
+
                     <div class="canvas-row clearfix">
                         <canvas id="corner-search1"></canvas>
                         <canvas id="corner-search2"></canvas>
                         <canvas id="corner-search3"></canvas>
                         <canvas id="corner-search4"></canvas>
                     </div>
+
                     <p>For each block that isn't a wall:</p>
+
                     <ul class="algorithm">
                         <li><p>Are there walls in diagonal directions at one step away? (Blue line)</p></li>
                         <li><p>Is there empty space in straight directions between the any of the diagonal walls and current block? (Yellow box)</p></li>
                         <li><p>If answer was 'yes' to both, mark the block as a corner. (Light green)</p></li>
                     </ul>
+
                     <p>This is repeated for each empty block, until the corners have been detected:</p>
 
                     <div class="canvas-row clearfix">
-                        <canvas id="corner-search5"></canvas>
+                        <canvas id="all-found-corners"></canvas>
                     </div>
 
                     <h3>2. Connect the corners</h3>
 
                     <div class="canvas-row clearfix">
-                        <canvas id="connect-corners1"></canvas>
-                        <canvas id="connect-corners2"></canvas>
-                        <canvas id="connect-corners3"></canvas>
-                        <canvas id="connect-corners4"></canvas>
+                        <canvas id="top-left-connections"></canvas>
+                        <canvas id="bottom-left-connections"></canvas>
+                        <canvas id="bottom-right-connections"></canvas>
+                        <canvas id="top-right-connections"></canvas>
                     </div>
+
                     <p>For each corner:</p>
+
                     <ul class="algorithm">
                         <li><p>Go through other corners and check if there is a clear route to them</p></li>
                         <li><p>If there was a clear route to another corner, connect it. (Gray line)</p></li>
                     </ul>
+
                     <p>Red line = no clear route between corners.</p>
+
                     <p>A clear route is defined as:</p>
+
                     <div class="canvas-row clearfix">
-                        <canvas id="connect-corners5"></canvas>
+                        <canvas id="clear-route-example"></canvas>
                     </div>
+
                     <p>If there are no walls in the blue rectangle that can be drawn between the corners, it is a clear route. In the above example, there's <span class="italic">not</span> a clear route.</p>
                     <p>Because a clear route is defined this way, the algorithm does not find the shortest path always.</p>
+
                     <h3>3. Done.</h3>
+
                     <div class="canvas-row clearfix">
-                        <canvas id="done"></canvas>
+                        <canvas id="corners-done"></canvas>
                     </div>
+
                     <p>Now Dijkstra's algorithm has much less work to do.</p>
+
                     <p>Note that the path is calculated only between the corners, but the actual path filled with the orange path blocks. This is possible because there is known to be a clear route between the connected corners.</p>
                 </div>
             </div>

@@ -1,5 +1,4 @@
-// This is very repetitive code, but it's better still than to
-// hava outdated screenshots
+// Grids under the header "How the preprocessing works"
 
 var Explanations = (function(options) {
 
@@ -28,6 +27,7 @@ var Explanations = (function(options) {
         // Map's border
         borderColor: '#999',
 
+        // Used as a 'current block or step'
         infoColor: 'blue',
 
         checkWallColor: 'yellow',
@@ -37,7 +37,12 @@ var Explanations = (function(options) {
 
     var my = {},
         grids = {},
-        options = $.extend(true, {}, defaultOptions, options);
+        options = $.extend(true, {}, defaultOptions, options),
+        defaultGridOptions = {
+            columns: 5,
+            rows: 3,
+            boxSize: options.boxSize
+        };
 
 
     // Starts explanation canvases
@@ -47,40 +52,29 @@ var Explanations = (function(options) {
         }
     };
 
-    grids.cornerSearch1 = function() {
-        var columns = 5,
-            rows = 3;
+    // Adds the default scene to the grid, which is one block in the center
+    function newExplanationGrid(canvas) {
+        var gridOptions = $.extend(true, {}, defaultGridOptions, {canvas: canvas}),
+            grid = new Grid(gridOptions);
 
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#corner-search1')[0]
-        });
 
         grid.setAllColor(options.emptyColor);
-
         grid.setBoxesColor([[2, 1]], options.wallColor);
+        return grid;
+    }
+
+    // Start searching corners from the first block
+    grids.cornerSearch1 = function() {
+        var grid = newExplanationGrid($('#corner-search1')[0]);
 
         grid.setBoxColor(0, 0, options.infoColor);
-
         grid.connectBoxes(0, 0, 1, 1, options.infoColor);
         grid.draw();
     };
 
+    // Move one block to right, there's a corner
     grids.cornerSearch2 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#corner-search2')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#corner-search2')[0]);
 
         grid.setBoxColor(1, 0, options.infoColor);
 
@@ -92,19 +86,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
+    // Move to the right, abote the wall
     grids.cornerSearch3 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#corner-search3')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#corner-search3')[0]);
 
         grid.setBoxColor(2, 0, options.infoColor);
 
@@ -115,19 +99,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
+    // One to right, there's second corner
     grids.cornerSearch4 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#corner-search4')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#corner-search4')[0]);
 
         grid.setBoxColor(3, 0, options.infoColor);
 
@@ -141,19 +115,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
+    // All found corners
     grids.cornerSearch5 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#corner-search5')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#all-found-corners')[0]);
 
         grid.setBoxColor(1, 0, options.cornerColor);
         grid.setBoxColor(1, 2, options.cornerColor);
@@ -162,20 +126,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
-
+    // Connections from top left corner
     grids.connectCorners1 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#connect-corners1')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#top-left-connections')[0]);
 
         grid.setBoxColor(1, 0, options.cornerColor);
         grid.setBoxColor(1, 2, options.cornerColor);
@@ -189,19 +142,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
+    // Connections from bottom left corner
     grids.connectCorners2 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#connect-corners2')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#bottom-left-connections')[0]);
 
         grid.setBoxColor(1, 0, options.cornerColor);
         grid.setBoxColor(1, 2, options.cornerColor);
@@ -215,19 +158,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
+    // Connections from bottom right corner
     grids.connectCorners3 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#connect-corners3')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#bottom-right-connections')[0]);
 
         grid.setBoxColor(1, 0, options.cornerColor);
         grid.setBoxColor(1, 2, options.cornerColor);
@@ -241,19 +174,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
+    // Connections from top right corner
     grids.connectCorners4 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#connect-corners4')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#top-right-connections')[0]);
 
         grid.setBoxColor(1, 0, options.cornerColor);
         grid.setBoxColor(1, 2, options.cornerColor);
@@ -267,19 +190,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
+    // Example of clear route with blue rectangle
     grids.connectCorners5 = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#connect-corners5')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#clear-route-example')[0]);
 
         grid.setBoxColor(1, 0, options.cornerColor);
         grid.setBoxColor(3, 2, options.cornerColor);
@@ -292,19 +205,9 @@ var Explanations = (function(options) {
         grid.draw();
     };
 
+    // Example of the final product, all corners found and connected.
     grids.done = function() {
-        var columns = 5,
-            rows = 3;
-
-        grid = new Grid({
-            columns: columns,
-            rows: rows,
-            boxSize: options.boxSize,
-            canvas: $('#done')[0]
-        });
-
-        grid.setAllColor(options.emptyColor);
-        grid.setBoxesColor([[2, 1]], options.wallColor);
+        var grid = newExplanationGrid($('#corners-done')[0]);
 
         grid.setBoxColor(1, 0, options.cornerColor);
         grid.setBoxColor(1, 2, options.cornerColor);
@@ -318,7 +221,6 @@ var Explanations = (function(options) {
 
         grid.draw();
     };
-
 
     return my;
 });
