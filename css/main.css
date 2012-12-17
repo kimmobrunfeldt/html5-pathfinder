@@ -163,13 +163,13 @@ ul, li {
 .wrapper {
     min-height: 100%;
     width: 950px;
-    background: #eee;
+    background: url("../img/dust.png");
 }
 
 .wrapper h1, h2 {
     text-align: center;
     padding: 30px 0 10px 0;
-    color: #353535;
+    color: #444;
 }
 
 .wrapper h3 {
@@ -178,8 +178,9 @@ ul, li {
 }
 
 .wrapper h1 {
-    font-size: 5em;
+    font-size: 5.4em;
     padding-bottom: 50px;
+    text-shadow: white 0px 1px 0px;
 }
 
 .wrapper p {
@@ -188,8 +189,25 @@ ul, li {
 }
 
 .wrapper .top {
+    position: relative;
     background: url("../img/egg_shell_green.png");
     border-bottom: 3px solid #999;
+}
+
+.wrapper .github-link:hover {
+    background: url("../img/octocat_dark.png");
+    cursor: pointer;
+}
+
+.wrapper .github-link {
+    position: absolute;
+    background: url("../img/octocat.png");
+    top: 5px;
+    right: 10px;
+    width: 45px;
+    height: 45px;
+    border:0;
+    margin: 0;
 }
 
 .wrapper .textcontainer {
@@ -197,13 +215,17 @@ ul, li {
     padding: 30px 50px 50px 50px;
 }
 
+.wrapper .reload a:active {
+    margin-top: 1px;
+}
+
 .wrapper .reload a:hover {
-    background: url("../img/reload_light.png");
+    background: url("../img/reload_dark.png");
     cursor: pointer;
 }
 
 .wrapper .reload a {
-    background: url("../img/reload_dark.png");
+    background: url("../img/reload_light.png");
     height: 40px;
     width: 40px;
     display: block;
